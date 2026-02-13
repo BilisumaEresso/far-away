@@ -1,68 +1,90 @@
 import { BaggageClaim, TreePalm } from "lucide-react";
 import { useState } from "react";
+import { List } from "./assets/components/List";
 
 function App() {
-  const [input, setInput] = useState({ name: "", quantity: 1,checked:false });
-  const [item, setItem] = useState([]);
+  const [input, setInput] = useState({ name: "", quantity: 1 });
+  const [items, setItems] = useState([]);
+
+  function addItem() {
+    if (!input.name.trim()) return;
+    setItems((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        name: input.name,
+        quantity: input.quantity,
+        packed: false,
+      },
+    ]);
+    setInput({ name: "", quantity: 1 });
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    addItem();
+  }
 
   function changeHandler(e) {
+    const { name, value } = e.target;
     setInput((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: name === "quantity" ? Number(value) : value,
     }));
-    console.log(input);
   }
 
-  function submitHandler(e) {
-    e.preventDefault();
-    setItem((prev) => [...prev, input]);
-    
+  function togglePacked(id) {
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, packed: !item.packed } : item,
+      ),
+    );
   }
-  console.log(item);
+
+  function deleteItem(id) {
+    setItems((prev) => prev.filter((item) => item.id !== id));
+  }
+
   return (
     <div>
-      <span className=" bg-amber-500 flex justify-center py-5 items-center gap-4">
+      <span className="bg-amber-500 flex justify-center py-5 items-center gap-4">
         <TreePalm size={40} color="green" />
-        <h1 className="text-5xl p-6font-extrabold text-center">FAR AWAY</h1>
+        <h1 className="text-5xl font-extrabold text-center">FAR AWAY</h1>
         <BaggageClaim size={40} color="brown" />
       </span>
       <form
-        onSubmit={submitHandler}
-        className="bg-amber-600 p-5 sm:flex grid grid-cols-2 justify-around px-2 gap-2 items-center"
+        onSubmit={handleSubmit}
+        className="bg-amber-600 p-5 flex flex-col sm:flex-row gap-4 items-center justify-center"
       >
-        <label className="col-span-2" htmlFor="name">
+        <label htmlFor="name" className="text-amber-50">
           What do you need for 😍 your trip?
         </label>
         <input
-          className="bg-amber-100 rounded-2xl p-2"
+          id="quantity"
+          className="bg-amber-100 rounded-2xl p-2 w-20"
           type="number"
           name="quantity"
+          min="1"
           onChange={changeHandler}
           value={input.quantity}
         />
         <input
+          id="name"
           type="text"
-          className="bg-amber-100 rounded-2xl p-2 focus:outline-0"
+          className="bg-amber-100 rounded-2xl p-2 flex-1"
           placeholder="item..."
           name="name"
           onChange={changeHandler}
           value={input.name}
         />
-        <input
+        <button
           type="submit"
-          className="bg-cyan-500  py-2 px-4  rounded-2xl uppercase cursor-pointer"
-          value="Add"
-        />
+          className="bg-cyan-500 py-2 px-4 rounded-2xl uppercase cursor-pointer"
+        >
+          Add
+        </button>
       </form>
-      <div className="grid grid-cols-3">
-        {item.map((i, idx) => (
-          <span className="text-amber-50 flex items-center py-3 gap-2" key={idx}>
-            <input type="checkbox" />
-            <p className="text-amber-50">{i.quantity}</p>
-            <p className="">{i.name}</p>
-          </span>
-        ))}
-      </div>
+      <List items={items} onToggle={togglePacked} onDelete={deleteItem} />
     </div>
   );
 }
