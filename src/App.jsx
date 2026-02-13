@@ -1,6 +1,7 @@
 import { BaggageClaim, TreePalm } from "lucide-react";
 import { useState } from "react";
 import { List } from "./assets/components/List";
+import { Footer } from "./assets/components/Footer";
 
 function App() {
   const [input, setInput] = useState({ name: "", quantity: 1 });
@@ -85,6 +86,7 @@ function App() {
         </button>
       </form>
       <List items={items} onToggle={togglePacked} onDelete={deleteItem} />
+      <Footer items={items} />
     </div>
   );
 }
